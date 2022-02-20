@@ -269,17 +269,19 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 			XSelectInput(dpy, lock->root, SubstructureNotifyMask);
 
 			XChangeProperty(
-					dpy,
-					lock->win,
-					XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False),
-					XA_CARDINAL,
-					32,
-					PropModeReplace,
-					(const unsigned char[4]) {
-					0x00, 0x00, 0x00,
-					(unsigned char)(opacity * 0xff)
-					},
-					1L
+				dpy,
+				lock->win,
+				XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False),
+				XA_CARDINAL,
+				32,
+				PropModeReplace,
+				(const unsigned char[4]) {
+					0x00,
+					0x00,
+					0x00,
+					opacity * 0xff
+				},
+				1L
 			);
 
 			XSync(dpy, False);
