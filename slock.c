@@ -57,6 +57,17 @@ die(const char *errstr, ...)
 	exit(1);
 }
 
+static void
+warn(const char *wrnstr, ...)
+{
+	va_list ap;
+
+	va_start(ap, wrnstr);
+	vfprintf(stderr, wrnstr, ap);
+	va_end(ap);
+}
+
+
 #ifdef __linux__
 #include <fcntl.h>
 #include <linux/oom.h>
@@ -330,9 +341,16 @@ main(int argc, char **argv) {
 		    errno ? strerror(errno) : "user entry not found");
 	duid = pwd->pw_uid;
 	errno = 0;
-	if (!(grp = getgrnam(group)))
-		die("slock: getgrnam %s: %s\n", group,
-		    errno ? strerror(errno) : "group entry not found");
+	if (!(grp = getgrnam(group))) {
+		warn("slock: getgrnam %s: %s, using fallback group: %s\n", group,
+		    errno ? strerror(errno) : "group entry not found", fallback_group);
+
+		if (!(grp = getgrnam(fallback_group))) {
+			die("slock: getgrnam %s: %s\n", fallback_group,
+				errno ? strerror(errno) : "group entry not found");
+		}
+	}
+
 	dgid = grp->gr_gid;
 
 #ifdef __linux__
