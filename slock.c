@@ -24,18 +24,11 @@
 
 char *argv0;
 
-enum {
-	INIT,
-	INPUT,
-	FAILED,
-	NUMCOLS
-};
-
 struct lock {
 	int screen;
 	Window root, win;
 	Pixmap pmap;
-	unsigned long colors[NUMCOLS];
+	unsigned long background;
 };
 
 struct xrandr {
@@ -141,15 +134,13 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 {
 	XRRScreenChangeNotifyEvent *rre;
 	char buf[32], passwd[256], *inputhash;
-	int num, screen, running, failure, oldc;
-	unsigned int len, color;
+	int num, screen, running;
+	unsigned int len;
 	KeySym ksym;
 	XEvent ev;
 
 	len = 0;
 	running = 1;
-	failure = 0;
-	oldc = INIT;
 
 	while (running && !XNextEvent(dpy, &ev)) {
 		if (ev.type == KeyPress) {
@@ -177,7 +168,6 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 					running = !!strcmp(inputhash, hash);
 				if (running) {
 					XBell(dpy, 100);
-					failure = 1;
 				}
 				explicit_bzero(&passwd, sizeof(passwd));
 				len = 0;
@@ -197,16 +187,6 @@ readpw(Display *dpy, struct xrandr *rr, struct lock **locks, int nscreens,
 					len += num;
 				}
 				break;
-			}
-			color = len ? INPUT : ((failure || failonclear) ? FAILED : INIT);
-			if (running && oldc != color) {
-				for (screen = 0; screen < nscreens; screen++) {
-					XSetWindowBackground(dpy,
-					                     locks[screen]->win,
-					                     locks[screen]->colors[color]);
-					XClearWindow(dpy, locks[screen]->win);
-				}
-				oldc = color;
 			}
 		} else if (rr->active && ev.type == rr->evbase + RRScreenChangeNotify) {
 			rre = (XRRScreenChangeNotifyEvent*)&ev;
@@ -246,15 +226,14 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 	lock->screen = screen;
 	lock->root = RootWindow(dpy, lock->screen);
 
-	for (i = 0; i < NUMCOLS; i++) {
-		XAllocNamedColor(dpy, DefaultColormap(dpy, lock->screen),
-		                 colorname[i], &color, &dummy);
-		lock->colors[i] = color.pixel;
-	}
+	XAllocNamedColor(dpy, DefaultColormap(dpy, lock->screen),
+			background, &color, &dummy);
+
+	lock->background = color.pixel;
 
 	/* init */
 	wa.override_redirect = 1;
-	wa.background_pixel = lock->colors[INIT];
+	wa.background_pixel = lock->background;
 	lock->win = XCreateWindow(dpy, lock->root, 0, 0,
 	                          DisplayWidth(dpy, lock->screen),
 	                          DisplayHeight(dpy, lock->screen),
