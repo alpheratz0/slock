@@ -1,24 +1,21 @@
 slock - simple screen locker
 ============================
-simple screen locker utility for X.
+Simple screen locker utility for X,
+this is a fork of https://git.suckless.org/slock.
 
-
-Requirements
-------------
+requirements
+============
 In order to build slock you need the Xlib header files.
 
+installation
+============
+Edit config.mk to match your local setup.
+Afterwards enter the following command to build and install
+slock (if necessary as root):
 
-Installation
-------------
-Edit config.mk to match your local setup (slock is installed into
-the /usr/local namespace by default).
+$ make clean install
 
-Afterwards enter the following command to build and install slock
-(if necessary as root):
-
-    make clean install
-
-
-Running slock
--------------
-Simply invoke the 'slock' command. To get out of it, enter your password.
+running slock
+=============
+Simply invoke the 'slock' command. To get out of it,
+enter your password.
