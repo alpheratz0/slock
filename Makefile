@@ -21,7 +21,7 @@ LIBS = -L/usr/lib -lc -lcrypt -L${X11LIB} -lX11 -lXext -lXrandr
 CPPFLAGS = -DVERSION=\"${VERSION}\" -D_DEFAULT_SOURCE -DHAVE_SHADOW_H
 CFLAGS = -std=c99 -pedantic -Wall -Os ${INCS} ${CPPFLAGS}
 LDFLAGS = -s ${LIBS}
-COMPATSRC = explicit_bzero.c
+COMPATSRC = src/explicit_bzero.c
 
 # On OpenBSD and Darwin remove -lcrypt from LIBS
 #LIBS = -L/usr/lib -lc -L${X11LIB} -lX11 -lXext -lXrandr
@@ -34,59 +34,42 @@ COMPATSRC = explicit_bzero.c
 # compiler and linker
 CC = cc
 
-SRC = slock.c ${COMPATSRC}
+SRC = src/slock.c ${COMPATSRC}
 OBJ = ${SRC:.c=.o}
 
-all: options slock
+all: slock
 
-options:
-	@echo slock build options:
-	@echo "CFLAGS   = ${CFLAGS}"
-	@echo "LDFLAGS  = ${LDFLAGS}"
-	@echo "CC       = ${CC}"
+${OBJ}: src/config.h \
+		src/arg.h \
+		src/util.h
 
-.c.o:
-	@echo CC $<
-	@${CC} -c ${CFLAGS} $<
-
-${OBJ}: config.h config.mk arg.h util.h
-
-config.h:
-	@echo creating $@ from config.def.h
-	@cp config.def.h $@
+src/config.h:
+	@cp src/config.def.h $@
 
 slock: ${OBJ}
-	@echo CC -o $@
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
 clean:
-	@echo cleaning
 	@rm -f slock ${OBJ} slock-${VERSION}.tar.gz
 
 dist: clean
-	@echo creating dist tarball
 	@mkdir -p slock-${VERSION}
-	@cp -R LICENSE Makefile README slock.1 config.mk \
-		${SRC} explicit_bzero.c config.def.h arg.h util.h slock-${VERSION}
+	@cp -R LICENSE Makefile README man src slock-${VERSION}
 	@tar -cf slock-${VERSION}.tar slock-${VERSION}
 	@gzip slock-${VERSION}.tar
 	@rm -rf slock-${VERSION}
 
 install: all
-	@echo installing executable file to ${DESTDIR}${PREFIX}/bin
 	@mkdir -p ${DESTDIR}${PREFIX}/bin
 	@cp -f slock ${DESTDIR}${PREFIX}/bin
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/slock
 	@chmod u+s ${DESTDIR}${PREFIX}/bin/slock
-	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
 	@mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	@sed "s/VERSION/${VERSION}/g" <slock.1 >${DESTDIR}${MANPREFIX}/man1/slock.1
+	@sed "s/VERSION/${VERSION}/g" <man/slock.1 >${DESTDIR}${MANPREFIX}/man1/slock.1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/slock.1
 
 uninstall:
-	@echo removing executable file from ${DESTDIR}${PREFIX}/bin
 	@rm -f ${DESTDIR}${PREFIX}/bin/slock
-	@echo removing manual page from ${DESTDIR}${MANPREFIX}/man1
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/slock.1
 
-.PHONY: all options clean dist install uninstall
+.PHONY: all clean dist install uninstall
