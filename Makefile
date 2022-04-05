@@ -43,9 +43,6 @@ ${OBJ}: src/config.h \
 		src/arg.h \
 		src/util.h
 
-src/config.h:
-	@cp src/config.def.h $@
-
 slock: ${OBJ}
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
