@@ -344,6 +344,7 @@ main(int argc, char **argv) {
 		warn("slock: getgrnam %s: %s, using fallback group: %s\n", group,
 				errno ? strerror(errno) : "group entry not found", fallback_group);
 
+		errno = 0;
 		if (!(grp = getgrnam(fallback_group))) {
 			die("slock: getgrnam %s: %s\n", fallback_group,
 					errno ? strerror(errno) : "group entry not found");
