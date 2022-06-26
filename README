@@ -1,12 +1,13 @@
-slock
-=====
-simple screen locker utility for X, fork of https://git.suckless.org/slock
+]|~ slock ~|[
 
-build
-=====
-in order to build slock you need the Xlib header files
+Simple screen locker utility for X with support for
+transparency, fork of https://git.suckless.org/slock.
+
+]|~ build ~|[
+
+In order to build slock you will need Xlib headers.
 $ make
 
-install
-=======
-$ sudo make install
+]|~ license ~|[
+
+See LICENSE file.
