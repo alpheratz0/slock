@@ -3,14 +3,14 @@
 
 include config.mk
 
-SRC = src/slock.c ${COMPATSRC}
+SRC = slock.c ${COMPATSRC}
 OBJ = ${SRC:.c=.o}
 
 all: slock
 
-${OBJ}: src/config.h \
-		src/arg.h \
-		src/util.h
+${OBJ}: config.h \
+		arg.h \
+		util.h
 
 slock: ${OBJ}
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
@@ -20,7 +20,7 @@ clean:
 
 dist: clean
 	@mkdir -p slock-${VERSION}
-	@cp -R LICENSE Makefile README man src slock-${VERSION}
+	@cp -R LICENSE Makefile README slock.1 ${SRC} slock-${VERSION}
 	@tar -cf slock-${VERSION}.tar slock-${VERSION}
 	@gzip slock-${VERSION}.tar
 	@rm -rf slock-${VERSION}
@@ -31,7 +31,7 @@ install: all
 	@chmod 755 ${DESTDIR}${PREFIX}/bin/slock
 	@chmod u+s ${DESTDIR}${PREFIX}/bin/slock
 	@mkdir -p ${DESTDIR}${MANPREFIX}/man1
-	@sed "s/VERSION/${VERSION}/g" <man/slock.1 >${DESTDIR}${MANPREFIX}/man1/slock.1
+	@sed "s/VERSION/${VERSION}/g" <slock.1 >${DESTDIR}${MANPREFIX}/man1/slock.1
 	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/slock.1
 
 uninstall:
