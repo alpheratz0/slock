@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <X11/extensions/Xrandr.h>
 #include <X11/keysym.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
@@ -276,6 +277,24 @@ lockscreen(Display *dpy, struct xrandr *rr, int screen)
 				XRRSelectInput(dpy, lock->win, RRScreenChangeNotifyMask);
 
 			XSelectInput(dpy, lock->root, SubstructureNotifyMask);
+
+			XChangeProperty(
+				dpy,
+				lock->win,
+				XInternAtom(dpy, "_NET_WM_WINDOW_OPACITY", False),
+				XA_CARDINAL,
+				32,
+				PropModeReplace,
+				(const unsigned char[4]) {
+					opacity * 0xff,
+					0x00,
+					0x00,
+					opacity * 0xff
+				},
+				1L
+			);
+
+			XSync(dpy, False);
 			return lock;
 		}
 

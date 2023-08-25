@@ -8,5 +8,8 @@ static const char *colorname[NUMCOLS] = {
 	[FAILED] = "#ad2a4b",   /* wrong password */
 };
 
+/* opacity (accepts values from 0 to 1) */
+static const float opacity = 0.7;
+
 /* treat a cleared input like a wrong password (color) */
 static const int failonclear = 1;
